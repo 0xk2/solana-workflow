@@ -5,6 +5,9 @@ use anchor_lang::prelude::*;
 pub struct Workflow {
   pub author: Pubkey,
   pub workflow_id: u64,
+  pub start: u16,
+  #[max_len(50)]
+  pub title: String,
 }
 
 impl Workflow {
@@ -14,15 +17,21 @@ impl Workflow {
 }
 
 #[account]
+#[derive(InitSpace)]
 pub struct VoteOption {
+  #[max_len(10)]
   pub title: String,
-  pub next_id: u64,
+  pub next_id: u16,
 }
 
 #[account]
-struct CheckPoint{
+#[derive(InitSpace)]
+pub struct CheckPoint{
   pub workflow_id: u64,
-  pub id: u64,
+  pub id: u16,
+  #[max_len(50)]
+  pub title: String,
+  #[max_len(10)]
   pub options: Vec<VoteOption>,
 }
 
