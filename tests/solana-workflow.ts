@@ -1,6 +1,7 @@
 import * as anchor from '@coral-xyz/anchor';
 import { Program } from '@coral-xyz/anchor';
 import { SolanaWorkflow } from '../target/types/solana_workflow';
+import { PublicKey } from '@solana/web3.js';
 
 const workflow = {
   title: 'My first workflow',
@@ -70,11 +71,25 @@ describe('solana-workflow', () => {
   // Configure the client to use the local cluster.
   anchor.setProvider(anchor.AnchorProvider.env());
 
-  const program = anchor.workspace.SolanaWorkflow as Program<SolanaWorkflow>;
+  const solanaWorkflow = anchor.workspace
+    .SolanaWorkflow as Program<SolanaWorkflow>;
+  const anchorProvider = solanaWorkflow.provider as anchor.AnchorProvider;
 
+  const [workflowPDA, bump] = PublicKey.findProgramAddressSync(
+    [Buffer.from('workflow')],
+    solanaWorkflow.programId
+  );
   it('Is initialized!', async () => {
+    const data = workflow.checkpoints;
+
     // Add your test here.
-    const tx = await program.methods.initialize().rpc();
+    const tx = await solanaWorkflow.methods
+      .createWorkflow(workflow.title, workflow.start, workflow.checkpoints)
+      .accounts({
+        user: anchorProvider.wallet.publicKey,
+        workflow: workflowPDA,
+      })
+      .rpc();
     console.log('Your transaction signature', tx);
   });
 });

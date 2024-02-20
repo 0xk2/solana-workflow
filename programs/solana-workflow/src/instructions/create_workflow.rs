@@ -52,5 +52,6 @@ pub fn create_workflow(
 
         chkp.try_serialize(&mut data.as_mut())?;
     }
+    
     Ok(())
 }
