@@ -1,6 +1,4 @@
 use crate::pda;
-use anchor_lang::prelude::borsh::BorshDeserialize;
-use anchor_lang::prelude::borsh::BorshSerialize;
 use anchor_lang::prelude::*;
 use pda::workflow::CheckPoint;
 use pda::workflow::VoteOption;
@@ -21,11 +19,11 @@ pub struct CreateWorkflow<'info> {
     pub system_program: Program<'info, System>,
 }
 
-#[derive(BorshDeserialize, BorshSerialize, Clone)]
+#[derive(AnchorSerialize, AnchorDeserialize, Clone)]
 pub struct InputCheckPoint {
     id: u16,
     title: String,
-    options: Vec<VoteOption>,
+    options: Option<Vec<VoteOption>>,
 }
 
 pub fn create_workflow(
@@ -52,6 +50,6 @@ pub fn create_workflow(
 
         chkp.try_serialize(&mut data.as_mut())?;
     }
-    
+
     Ok(())
 }

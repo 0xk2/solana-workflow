@@ -2,8 +2,16 @@ import * as anchor from '@coral-xyz/anchor';
 import { Program } from '@coral-xyz/anchor';
 import { SolanaWorkflow } from '../target/types/solana_workflow';
 import { PublicKey } from '@solana/web3.js';
+import * as borsh from 'borsh';
+import bs58 from 'bs58';
 
-const workflow = {
+type Workflow = {
+  title: string;
+  start: number;
+  checkpoints: Array<InputCheckpoint>;
+};
+
+const workflow: Workflow = {
   title: 'My first workflow',
   start: 1,
   checkpoints: [
@@ -13,11 +21,11 @@ const workflow = {
       options: [
         {
           title: 'Cancel',
-          next: 3,
+          nextId: 3,
         },
         {
           title: 'OK',
-          next: 2,
+          nextId: 2,
         },
       ],
     },
@@ -27,21 +35,23 @@ const workflow = {
       options: [
         {
           title: 'Cancel',
-          next: 3,
+          nextId: 3,
         },
         {
           title: 'OK',
-          next: 4,
+          nextId: 4,
         },
       ],
     },
     {
       id: 3,
       title: 'You have cancelled the workflow.',
+      options: undefined,
     },
     {
       id: 4,
       title: 'Horray, success!',
+      options: undefined,
     },
   ],
 };
@@ -59,13 +69,16 @@ const dashSdk = {
         options: checkpoint.options.map((option) => {
           return {
             title: option.title,
-            next: option.next,
+            nextId: option.nextId,
           };
         }),
       };
     });
   },
 };
+
+type InputCheckpoint = anchor.IdlTypes<SolanaWorkflow>['InputCheckPoint'];
+type VoteOption = anchor.IdlTypes<SolanaWorkflow>['VoteOption'];
 
 describe('solana-workflow', () => {
   // Configure the client to use the local cluster.
@@ -80,11 +93,14 @@ describe('solana-workflow', () => {
     solanaWorkflow.programId
   );
   it('Is initialized!', async () => {
-    const data = workflow.checkpoints;
 
     // Add your test here.
     const tx = await solanaWorkflow.methods
-      .createWorkflow(workflow.title, workflow.start, workflow.checkpoints)
+      .createWorkflow(
+        workflow.title,
+        workflow.start,
+        workflow.checkpoints
+      )
       .accounts({
         user: anchorProvider.wallet.publicKey,
         workflow: workflowPDA,

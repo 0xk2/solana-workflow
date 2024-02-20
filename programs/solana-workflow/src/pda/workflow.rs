@@ -1,7 +1,4 @@
-use anchor_lang::prelude::{
-    borsh::{BorshDeserialize, BorshSerialize},
-    *,
-};
+use anchor_lang::prelude::*;
 
 #[account]
 #[derive(InitSpace)]
@@ -19,7 +16,7 @@ impl Workflow {
 }
 
 // #[account]
-#[derive(InitSpace, BorshDeserialize, BorshSerialize, Clone)]
+#[derive(InitSpace, AnchorSerialize, AnchorDeserialize, Clone)]
 pub struct VoteOption {
     #[max_len(10)]
     pub title: String,
@@ -34,7 +31,7 @@ pub struct CheckPoint {
     #[max_len(50)]
     pub title: String,
     #[max_len(10)]
-    pub options: Vec<VoteOption>,
+    pub options: Option<Vec<VoteOption>>,
 }
 
 impl CheckPoint {
