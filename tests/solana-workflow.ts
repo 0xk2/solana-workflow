@@ -6,6 +6,7 @@ import * as borsh from 'borsh';
 import bs58 from 'bs58';
 
 type Workflow = {
+  id: number;
   title: string;
   start: number;
   checkpoints: Array<InputCheckpoint>;
@@ -14,6 +15,7 @@ type Workflow = {
 const workflow: Workflow = {
   title: 'My first workflow',
   start: 1,
+  id: 1,
   checkpoints: [
     {
       id: 1,
@@ -90,7 +92,7 @@ describe('solana-workflow', () => {
   const [workflowPDA, bump] = PublicKey.findProgramAddressSync(
     [Buffer.from('workflow'), anchorProvider.wallet.publicKey.toBuffer()],
     solanaWorkflow.programId
-  );
+  );  
 
   let remainingAccounts: any[] = [];
   for (let i = 0; i < workflow.checkpoints.length; i++) {
@@ -101,7 +103,7 @@ describe('solana-workflow', () => {
         workflowPDA.toBuffer(),
       ],
       solanaWorkflow.programId
-    );
+    );    
 
     remainingAccounts.push({
       pubkey: checkpointPDA,
@@ -109,16 +111,22 @@ describe('solana-workflow', () => {
       isSigner: false,
     });
   }
-
+  
   console.log('Remaining account', remainingAccounts);
 
   it('Is initialized!', async () => {
     // Add your test here.
     const tx = await solanaWorkflow.methods
-      .createWorkflow(workflow.title, workflow.start, workflow.checkpoints)
+      .createWorkflow(
+        workflow.title,
+        workflow.start,
+        new anchor.BN(workflow.id),
+        workflow.checkpoints
+      )
       .accounts({
         user: anchorProvider.wallet.publicKey,
         workflow: workflowPDA,
+        workflowProgram: solanaWorkflow.programId,
       })
       .remainingAccounts(remainingAccounts)
       .rpc({ skipPreflight: true });

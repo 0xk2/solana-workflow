@@ -16,6 +16,9 @@ pub struct CreateWorkflow<'info> {
     bump,
   )]
     pub workflow: Account<'info, Workflow>,
+    #[account()]
+    /// CHECK:
+    pub workflow_program: AccountInfo<'info>,
     pub system_program: Program<'info, System>,
 }
 
@@ -25,41 +28,36 @@ pub struct InputCheckPoint {
     title: String,
     options: Option<Vec<VoteOption>>,
 }
-#[account]
-pub struct RunAccount {
-    pub job: Pubkey,
-    pub node: Pubkey,
-    pub payer: Pubkey,
-    pub state: u8,
-    pub time: i64,
-}
 
-pub fn create_workflow(
-    ctx: Context<CreateWorkflow>,
+pub fn create_workflow<'c: 'info, 'info>(
+    ctx: Context<'_, '_, 'c, 'info, CreateWorkflow<'info>>,
     title: String,
     start: u16,
+    workflow_id: u64,
     input_checkpoints: Vec<InputCheckPoint>,
 ) -> Result<()> {
+    let _ = input_checkpoints;
     let workflow = &mut ctx.accounts.workflow;
     workflow.title = title.clone();
     workflow.start = start;
+    workflow.workflow_id = workflow_id;
     workflow.author = ctx.accounts.user.key();
 
-    // let mut run: Account<RunAccount> = RunAccount::from(&ctx.accounts);
+    let remaining_accounts_iter = &mut ctx.remaining_accounts.iter();
 
-    for (index, account) in ctx.remaining_accounts.iter().enumerate() {
-        let _account_key = account.key();
-        let mut data = account.try_borrow_mut_data()?;
+    CheckPoint::initialize(
+        ctx.accounts.user.to_account_info(),
+        next_account_info(remaining_accounts_iter)?,
+        ctx.accounts.workflow.to_account_info(),
+        ctx.accounts.workflow_program.to_account_info(),
+        ctx.accounts.system_program.to_account_info(),
+        workflow_id,
+        input_checkpoints[0].id,
+        input_checkpoints[0].title.clone(),
+        input_checkpoints[0].options.clone(),
+    )?;
 
-        let mut chkp =
-            CheckPoint::try_deserialize(&mut data.as_ref()).expect("Error Deserializing Data");
-
-        chkp.title = input_checkpoints[index as usize].title.clone();
-        chkp.id = input_checkpoints[index as usize].id.clone();
-        chkp.options = input_checkpoints[index as usize].options.clone();
-
-        chkp.try_serialize(&mut data.as_mut())?;
-    }
+    msg!("Done");
 
     Ok(())
 }

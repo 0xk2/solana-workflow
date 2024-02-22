@@ -1,23 +1,29 @@
 use anchor_lang::prelude::*;
 use instructions::*;
-use pda::*;
 
 pub mod instructions;
 pub mod pda;
 
-declare_id!("4mZ5qV2oXUqhtzw6LeLeB3R24aUhq3bzXsqezkk2dUJj");
+declare_id!("YiQingywsU6FotchaG7HpB9oYGhUn26gufxB8xrwF1s");
 
 #[program]
 pub mod solana_workflow {
     use super::*;
 
-    pub fn create_workflow(
-        ctx: Context<CreateWorkflow>,
+    pub fn create_workflow<'c: 'info, 'info>(
+        ctx: Context<'_, '_, 'c, 'info, CreateWorkflow<'info>>,
         title: String,
         start: u16,
-        input_checkpoints: Vec<InputCheckPoint>
+        workflow_id: u64,
+        input_checkpoints: Vec<InputCheckPoint>,
     ) -> Result<()> {
-        instructions::create_workflow::create_workflow(ctx, title, start, input_checkpoints)
+        instructions::create_workflow::create_workflow(
+            ctx,
+            title,
+            start,
+            workflow_id,
+            input_checkpoints,
+        )
     }
 }
 

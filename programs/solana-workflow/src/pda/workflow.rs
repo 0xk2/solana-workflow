@@ -44,11 +44,11 @@ impl CheckPoint {
     pub const SEED_PREFIX: &'static [u8; 10] = b"checkpoint";
     pub const SIZE: usize = 8 + size_of::<CheckPoint>();
 
-    fn from<'info>(info: &AccountInfo<'info>) -> Account<'info, Self> {
-        Account::try_from(info).unwrap()
+    fn from<'info>(x: &'info AccountInfo<'info>) -> Account<'info, Self> {
+        Account::try_from(x).unwrap()
     }
 
-    fn serialize(&self, info: AccountInfo) -> Result<()> {
+    pub fn serialize(&self, info: AccountInfo) -> Result<()> {
         let dst: &mut [u8] = &mut info.try_borrow_mut_data().unwrap();
         let mut writer: BpfWriter<&mut [u8]> = BpfWriter::new(dst);
         CheckPoint::try_serialize(self, &mut writer)
@@ -70,7 +70,8 @@ impl CheckPoint {
 
     pub fn initialize<'info>(
         payer: AccountInfo<'info>,
-        checkpoint: AccountInfo<'info>,
+        checkpoint: &'info AccountInfo<'info>,
+        workflow: AccountInfo<'info>,
         workflow_program: AccountInfo<'info>,
         system_program: AccountInfo<'info>,
         workflow_id: u64,
@@ -78,20 +79,27 @@ impl CheckPoint {
         title: String,
         options: Option<Vec<VoteOption>>,
     ) -> Result<()> {
+        msg!("Create account");
+        msg!("Checkpoint key {:?}", checkpoint.key());
+
         cpi::create_account(
             system_program,
             payer.to_account_info(),
             checkpoint.to_account_info(),
+            workflow.to_account_info(),
+            id,
             CheckPoint::SIZE,
             &workflow_program.key(),
         )?;
 
+        msg!("deserialize account");
         // deserialize and modify checkpoint account
-        let mut run: Account<CheckPoint> = CheckPoint::from(&checkpoint);
+        let mut run = CheckPoint::from(&checkpoint);
         run.create(workflow_id, id, title, options)?;
 
+        msg!("Serialize account");
         // write
-        run.serialize(checkpoint)?;
+        run.serialize(checkpoint.to_account_info())?;
         Ok(())
     }
 }
