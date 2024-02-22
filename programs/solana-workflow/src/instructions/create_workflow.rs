@@ -25,6 +25,14 @@ pub struct InputCheckPoint {
     title: String,
     options: Option<Vec<VoteOption>>,
 }
+#[account]
+pub struct RunAccount {
+    pub job: Pubkey,
+    pub node: Pubkey,
+    pub payer: Pubkey,
+    pub state: u8,
+    pub time: i64,
+}
 
 pub fn create_workflow(
     ctx: Context<CreateWorkflow>,
@@ -36,6 +44,8 @@ pub fn create_workflow(
     workflow.title = title.clone();
     workflow.start = start;
     workflow.author = ctx.accounts.user.key();
+
+    // let mut run: Account<RunAccount> = RunAccount::from(&ctx.accounts);
 
     for (index, account) in ctx.remaining_accounts.iter().enumerate() {
         let _account_key = account.key();

@@ -46,12 +46,12 @@ const workflow: Workflow = {
     {
       id: 3,
       title: 'You have cancelled the workflow.',
-      options: undefined,
+      options: [],
     },
     {
       id: 4,
       title: 'Horray, success!',
-      options: undefined,
+      options: [],
     },
   ],
 };
@@ -78,7 +78,6 @@ const dashSdk = {
 };
 
 type InputCheckpoint = anchor.IdlTypes<SolanaWorkflow>['InputCheckPoint'];
-type VoteOption = anchor.IdlTypes<SolanaWorkflow>['VoteOption'];
 
 describe('solana-workflow', () => {
   // Configure the client to use the local cluster.
@@ -89,23 +88,40 @@ describe('solana-workflow', () => {
   const anchorProvider = solanaWorkflow.provider as anchor.AnchorProvider;
 
   const [workflowPDA, bump] = PublicKey.findProgramAddressSync(
-    [Buffer.from('workflow')],
+    [Buffer.from('workflow'), anchorProvider.wallet.publicKey.toBuffer()],
     solanaWorkflow.programId
   );
-  it('Is initialized!', async () => {
 
+  let remainingAccounts: any[] = [];
+  for (let i = 0; i < workflow.checkpoints.length; i++) {
+    const [checkpointPDA, bump] = PublicKey.findProgramAddressSync(
+      [
+        Buffer.from([workflow.checkpoints[i].id]),
+        Buffer.from('checkpoint'),
+        workflowPDA.toBuffer(),
+      ],
+      solanaWorkflow.programId
+    );
+
+    remainingAccounts.push({
+      pubkey: checkpointPDA,
+      isWritable: true,
+      isSigner: false,
+    });
+  }
+
+  console.log('Remaining account', remainingAccounts);
+
+  it('Is initialized!', async () => {
     // Add your test here.
     const tx = await solanaWorkflow.methods
-      .createWorkflow(
-        workflow.title,
-        workflow.start,
-        workflow.checkpoints
-      )
+      .createWorkflow(workflow.title, workflow.start, workflow.checkpoints)
       .accounts({
         user: anchorProvider.wallet.publicKey,
         workflow: workflowPDA,
       })
-      .rpc();
+      .remainingAccounts(remainingAccounts)
+      .rpc({ skipPreflight: true });
     console.log('Your transaction signature', tx);
   });
 });
