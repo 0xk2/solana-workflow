@@ -45,19 +45,19 @@ pub fn create_workflow<'c: 'info, 'info>(
 
     let remaining_accounts_iter = &mut ctx.remaining_accounts.iter();
 
-    CheckPoint::initialize(
-        ctx.accounts.user.to_account_info(),
-        next_account_info(remaining_accounts_iter)?,
-        ctx.accounts.workflow.to_account_info(),
-        ctx.accounts.workflow_program.to_account_info(),
-        ctx.accounts.system_program.to_account_info(),
-        workflow_id,
-        input_checkpoints[0].id,
-        input_checkpoints[0].title.clone(),
-        input_checkpoints[0].options.clone(),
-    )?;
-
-    msg!("Done");
+    for input_checkpoint in input_checkpoints.iter() {
+        CheckPoint::initialize(
+            ctx.accounts.user.to_account_info(),
+            next_account_info(remaining_accounts_iter)?,
+            ctx.accounts.workflow.to_account_info(),
+            ctx.accounts.workflow_program.to_account_info(),
+            ctx.accounts.system_program.to_account_info(),
+            workflow_id,
+            input_checkpoint.id,
+            input_checkpoint.title.clone(),
+            input_checkpoint.options.clone(),
+        )?;
+    }
 
     Ok(())
 }

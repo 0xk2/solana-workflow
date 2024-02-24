@@ -25,7 +25,26 @@ pub mod solana_workflow {
             input_checkpoints,
         )
     }
-}
 
-#[derive(Accounts)]
-pub struct Initialize {}
+    pub fn create_mission(
+        ctx: Context<CreateMission>,
+        workflow_id: u64,
+        mission_id: u64,
+        title: String,
+        content: String,
+        current_vote_data: Pubkey,
+        checkpoint_id: u16,
+        vote_data_id: u64,
+    ) -> Result<()> {
+        instructions::create_mission::create_mission(
+            ctx,
+            workflow_id,
+            mission_id,
+            title,
+            content,
+            current_vote_data,
+            checkpoint_id,
+            vote_data_id,
+        )
+    }
+}

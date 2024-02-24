@@ -1,6 +1,5 @@
 use crate::{cpi, BpfWriter};
 use anchor_lang::prelude::*;
-use std::mem::size_of;
 
 /***
  * Accounts
@@ -13,7 +12,7 @@ pub struct Workflow {
     pub workflow_id: u64,
     pub start: u16,
     #[max_len(50)]
-    pub title: String,
+    pub title: String
 }
 
 impl Workflow {
@@ -42,10 +41,10 @@ pub struct CheckPoint {
 
 impl CheckPoint {
     pub const SEED_PREFIX: &'static [u8; 10] = b"checkpoint";
-    pub const SIZE: usize = 8 + size_of::<CheckPoint>();
+    pub const SIZE: usize = 1000;
 
     fn from<'info>(x: &'info AccountInfo<'info>) -> Account<'info, Self> {
-        Account::try_from(x).unwrap()
+        Account::try_from_unchecked(x).unwrap()
     }
 
     pub fn serialize(&self, info: AccountInfo) -> Result<()> {
@@ -79,9 +78,6 @@ impl CheckPoint {
         title: String,
         options: Option<Vec<VoteOption>>,
     ) -> Result<()> {
-        msg!("Create account");
-        msg!("Checkpoint key {:?}", checkpoint.key());
-
         cpi::create_account(
             system_program,
             payer.to_account_info(),
@@ -91,13 +87,10 @@ impl CheckPoint {
             CheckPoint::SIZE,
             &workflow_program.key(),
         )?;
-
-        msg!("deserialize account");
         // deserialize and modify checkpoint account
         let mut run = CheckPoint::from(&checkpoint);
         run.create(workflow_id, id, title, options)?;
 
-        msg!("Serialize account");
         // write
         run.serialize(checkpoint.to_account_info())?;
         Ok(())

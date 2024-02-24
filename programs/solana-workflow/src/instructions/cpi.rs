@@ -9,13 +9,18 @@ pub fn create_account<'info>(
     space: usize,
     owner: &Pubkey,
 ) -> Result<()> {
-    msg!("Create_account to {:?}", to.key());
+    let (_, cpi_bump) = Pubkey::find_program_address(
+        &[&id.to_le_bytes(), b"checkpoint", workflow.key.as_ref()],
+        owner,
+    );
+
+    // signer seeds must equal seeds of to address
     anchor_lang::system_program::create_account(
         CpiContext::new(system_program, CreateAccount { from, to }).with_signer(&[&[
             &id.to_le_bytes(),
             b"checkpoint",
             workflow.key.as_ref(),
-            &[253],
+            &[cpi_bump],
         ]]),
         Rent::get()?.minimum_balance(space),
         space.try_into().unwrap(),

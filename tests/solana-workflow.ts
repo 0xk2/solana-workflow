@@ -20,6 +20,7 @@ const workflow: Workflow = {
     {
       id: 1,
       title: '1st check: Do you want to proceed?',
+      // vote_machine_type: new PublicKey(''),
       options: [
         {
           title: 'Cancel',
@@ -89,32 +90,30 @@ describe('solana-workflow', () => {
     .SolanaWorkflow as Program<SolanaWorkflow>;
   const anchorProvider = solanaWorkflow.provider as anchor.AnchorProvider;
 
-  const [workflowPDA, bump] = PublicKey.findProgramAddressSync(
-    [Buffer.from('workflow'), anchorProvider.wallet.publicKey.toBuffer()],
-    solanaWorkflow.programId
-  );  
-
-  let remainingAccounts: any[] = [];
-  for (let i = 0; i < workflow.checkpoints.length; i++) {
-    const [checkpointPDA, bump] = PublicKey.findProgramAddressSync(
-      [
-        Buffer.from([workflow.checkpoints[i].id]),
-        Buffer.from('checkpoint'),
-        workflowPDA.toBuffer(),
-      ],
+  it('Create workflow', async () => {
+    const [workflowPDA, bump] = PublicKey.findProgramAddressSync(
+      [Buffer.from('workflow'), anchorProvider.wallet.publicKey.toBuffer()],
       solanaWorkflow.programId
-    );    
+    );
 
-    remainingAccounts.push({
-      pubkey: checkpointPDA,
-      isWritable: true,
-      isSigner: false,
-    });
-  }
-  
-  console.log('Remaining account', remainingAccounts);
+    let remainingAccounts: any[] = [];
+    for (let i = 0; i < workflow.checkpoints.length; i++) {
+      const [checkpointPDA, bump] = PublicKey.findProgramAddressSync(
+        [
+          Buffer.from(borsh.serialize('u16', workflow.checkpoints[i].id)),
+          Buffer.from('checkpoint'),
+          workflowPDA.toBuffer(),
+        ],
+        solanaWorkflow.programId
+      );
 
-  it('Is initialized!', async () => {
+      remainingAccounts.push({
+        pubkey: checkpointPDA,
+        isWritable: true,
+        isSigner: false,
+      });
+    }
+
     // Add your test here.
     const tx = await solanaWorkflow.methods
       .createWorkflow(
@@ -130,6 +129,46 @@ describe('solana-workflow', () => {
       })
       .remainingAccounts(remainingAccounts)
       .rpc({ skipPreflight: true });
-    console.log('Your transaction signature', tx);
+
+    console.log('Create workflow tx: ', tx);
+  });
+
+  it('Create mission', async () => {
+    const [missionPDA, _] = PublicKey.findProgramAddressSync(
+      [
+        Buffer.from('mission'),
+        anchorProvider.wallet.publicKey.toBuffer(),
+        Buffer.from(borsh.serialize('u64', 1)),
+      ],
+      solanaWorkflow.programId
+    );
+
+    const [voteData, __] = PublicKey.findProgramAddressSync(
+      [
+        Buffer.from('vote_data'),
+        missionPDA.toBytes(),
+        Buffer.from(borsh.serialize('u64', 1)),
+      ],
+      solanaWorkflow.programId
+    );
+
+    const tx = await solanaWorkflow.methods
+      .createMission(
+        new anchor.BN(1),
+        new anchor.BN(1),
+        'Test mission',
+        'This is test mission',
+        voteData,
+        1,
+        new anchor.BN(1)
+      )
+      .accounts({
+        user: anchorProvider.wallet.publicKey,
+        mission: missionPDA,
+        voteData: voteData,
+      })
+      .rpc({ skipPreflight: true });
+
+    console.log('Create misison tx: ', tx);
   });
 });
