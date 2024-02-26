@@ -12,6 +12,7 @@ pub struct Vote<'info> {
 
     #[account()]
     pub checkpoint: Account<'info, CheckPoint>,
+    
     /// CHECK:
     pub workflow_program: AccountInfo<'info>,
     pub system_program: Program<'info, System>,
@@ -34,19 +35,19 @@ pub fn vote<'c: 'info, 'info>(
 
     match &checkpoint.options {
         Some(options) => {
-            let next_checkpoint_id = options[(vote.option - 1) as usize].next_id;
+            let next_checkpoint_id = options[vote.option as usize].next_id;
 
-            mission.current_vote_data = ctx.remaining_accounts[(vote.option - 1) as usize].key();
+            mission.current_vote_data = ctx.remaining_accounts[vote.option as usize].key();
 
             VoteData::initialize(
                 ctx.accounts.user.to_account_info(),
-                &ctx.remaining_accounts[(vote.option - 1) as usize],
+                &ctx.remaining_accounts[vote.option as usize],
                 mission.to_account_info(),
                 ctx.accounts.workflow_program.to_account_info(),
                 ctx.accounts.system_program.to_account_info(),
-                vec_coef[(vote.option - 1) as usize].into(),
+                vec_coef[vote.option as usize].into(),
                 next_checkpoint_id,
-                vec_coef[(vote.option - 1) as usize],
+                vec_coef[vote.option as usize],
             )?;
         }
         None => {

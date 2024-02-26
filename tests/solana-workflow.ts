@@ -3,6 +3,8 @@ import { Program } from '@coral-xyz/anchor';
 import { SolanaWorkflow } from '../target/types/solana_workflow';
 import { PublicKey } from '@solana/web3.js';
 import * as borsh from 'borsh';
+import axios from 'axios';
+
 type InputCheckpoint = anchor.IdlTypes<SolanaWorkflow>['InputCheckPoint'];
 type InputVote = anchor.IdlTypes<SolanaWorkflow>['InputVote'];
 
@@ -61,26 +63,26 @@ const workflow: Workflow = {
   ],
 };
 
-const dashSdk = {
-  create_workflow: async function (data) {
-    const workflow = {
-      title: data.title,
-      start: 1,
-    };
-    const checkpoints = data.checkpoints.map((checkpoint, index) => {
-      return {
-        id: checkpoint.id,
-        title: checkpoint.title,
-        options: checkpoint.options.map((option) => {
-          return {
-            title: option.title,
-            nextId: option.nextId,
-          };
-        }),
-      };
-    });
-  },
-};
+// const dashSdk = {
+//   create_workflow: async function (data) {
+//     const workflow = {
+//       title: data.title,
+//       start: 1,
+//     };
+//     const checkpoints = data.checkpoints.map((checkpoint, index) => {
+//       return {
+//         id: checkpoint.id,
+//         title: checkpoint.title,
+//         options: checkpoint.options.map((option) => {
+//           return {
+//             title: option.title,
+//             nextId: option.nextId,
+//           };
+//         }),
+//       };
+//     });
+//   },
+// };
 
 describe('solana-workflow', () => {
   // Configure the client to use the local cluster.
@@ -90,88 +92,88 @@ describe('solana-workflow', () => {
     .SolanaWorkflow as Program<SolanaWorkflow>;
   const anchorProvider = solanaWorkflow.provider as anchor.AnchorProvider;
 
-  // it('Create workflow', async () => {
-  //   const [workflowPDA, bump] = PublicKey.findProgramAddressSync(
-  //     [Buffer.from('workflow'), anchorProvider.wallet.publicKey.toBuffer()],
-  //     solanaWorkflow.programId
-  //   );
+  it('Create workflow', async () => {
+    const [workflowPDA, bump] = PublicKey.findProgramAddressSync(
+      [Buffer.from('workflow'), anchorProvider.wallet.publicKey.toBuffer()],
+      solanaWorkflow.programId
+    );
 
-  //   let remainingAccounts: any[] = [];
-  //   for (let i = 0; i < workflow.checkpoints.length; i++) {
-  //     const [checkpointPDA, bump] = PublicKey.findProgramAddressSync(
-  //       [
-  //         Buffer.from(borsh.serialize('u16', workflow.checkpoints[i].id)),
-  //         Buffer.from('checkpoint'),
-  //         workflowPDA.toBuffer(),
-  //       ],
-  //       solanaWorkflow.programId
-  //     );
+    let remainingAccounts: any[] = [];
+    for (let i = 0; i < workflow.checkpoints.length; i++) {
+      const [checkpointPDA, bump] = PublicKey.findProgramAddressSync(
+        [
+          Buffer.from(borsh.serialize('u16', workflow.checkpoints[i].id)),
+          Buffer.from('checkpoint'),
+          workflowPDA.toBuffer(),
+        ],
+        solanaWorkflow.programId
+      );
 
-  //     remainingAccounts.push({
-  //       pubkey: checkpointPDA,
-  //       isWritable: true,
-  //       isSigner: false,
-  //     });
-  //   }
+      remainingAccounts.push({
+        pubkey: checkpointPDA,
+        isWritable: true,
+        isSigner: false,
+      });
+    }
 
-  //   // Add your test here.
-  //   const tx = await solanaWorkflow.methods
-  //     .createWorkflow(
-  //       workflow.title,
-  //       workflow.start,
-  //       new anchor.BN(workflow.id),
-  //       workflow.checkpoints
-  //     )
-  //     .accounts({
-  //       user: anchorProvider.wallet.publicKey,
-  //       workflow: workflowPDA,
-  //       workflowProgram: solanaWorkflow.programId,
-  //     })
-  //     .remainingAccounts(remainingAccounts)
-  //     .rpc({ skipPreflight: true });
+    // Add your test here.
+    const tx = await solanaWorkflow.methods
+      .createWorkflow(
+        workflow.title,
+        workflow.start,
+        new anchor.BN(workflow.id),
+        workflow.checkpoints
+      )
+      .accounts({
+        user: anchorProvider.wallet.publicKey,
+        workflow: workflowPDA,
+        workflowProgram: solanaWorkflow.programId,
+      })
+      .remainingAccounts(remainingAccounts)
+      .rpc({ skipPreflight: true });
 
-  //   console.log('Create workflow tx: ', tx);
-  // });
+    console.log('Create workflow tx: ', tx);
+  });
 
-  // it('Create mission', async () => {
-  //   const [missionPDA, _] = PublicKey.findProgramAddressSync(
-  //     [
-  //       Buffer.from('mission'),
-  //       anchorProvider.wallet.publicKey.toBuffer(),
-  //       Buffer.from(borsh.serialize('u64', 1)),
-  //     ],
-  //     solanaWorkflow.programId
-  //   );
+  it('Create mission', async () => {
+    const [missionPDA, _] = PublicKey.findProgramAddressSync(
+      [
+        Buffer.from('mission'),
+        anchorProvider.wallet.publicKey.toBuffer(),
+        Buffer.from(borsh.serialize('u64', 1)),
+      ],
+      solanaWorkflow.programId
+    );
 
-  //   const [voteData, __] = PublicKey.findProgramAddressSync(
-  //     [
-  //       Buffer.from('vote_data'),
-  //       missionPDA.toBytes(),
-  //       Buffer.from(borsh.serialize('u64', 1)),
-  //       Buffer.from([0]),
-  //     ],
-  //     solanaWorkflow.programId
-  //   );
+    const [voteData, __] = PublicKey.findProgramAddressSync(
+      [
+        Buffer.from('vote_data'),
+        missionPDA.toBytes(),
+        Buffer.from(borsh.serialize('u64', 1)),
+        Buffer.from([0]),
+      ],
+      solanaWorkflow.programId
+    );
 
-  //   const tx = await solanaWorkflow.methods
-  //     .createMission(
-  //       new anchor.BN(1),
-  //       new anchor.BN(1),
-  //       'Test mission',
-  //       'This is test mission',
-  //       voteData,
-  //       1,
-  //       new anchor.BN(1)
-  //     )
-  //     .accounts({
-  //       user: anchorProvider.wallet.publicKey,
-  //       mission: missionPDA,
-  //       voteData: voteData,
-  //     })
-  //     .rpc({ skipPreflight: true });
+    const tx = await solanaWorkflow.methods
+      .createMission(
+        new anchor.BN(1),
+        new anchor.BN(1),
+        'Test mission',
+        'This is test mission',
+        voteData,
+        1,
+        new anchor.BN(1)
+      )
+      .accounts({
+        user: anchorProvider.wallet.publicKey,
+        mission: missionPDA,
+        voteData: voteData,
+      })
+      .rpc({ skipPreflight: true });
 
-  //   console.log('Create misison tx: ', tx);
-  // });
+    console.log('Create misison tx: ', tx);
+  });
 
   it('Vote', async () => {
     const [missionPDA, _] = PublicKey.findProgramAddressSync(
@@ -214,7 +216,7 @@ describe('solana-workflow', () => {
     for (let option of checkpointData.options) {
       let coef = 0;
       let isExist = false;
-      while (isExist === false) {
+      while (isExist === false || coef === 8) {
         const [nextVoteData, __] = PublicKey.findProgramAddressSync(
           [
             Buffer.from('vote_data'),
@@ -225,12 +227,37 @@ describe('solana-workflow', () => {
           solanaWorkflow.programId
         );
 
+        const url = 'http://localhost:8899';
+        const data = {
+          jsonrpc: '2.0',
+          id: 1,
+          method: 'getAccountInfo',
+          params: [
+            nextVoteData,
+            {
+              encoding: 'base58',
+            },
+          ],
+        };
+
         try {
-          await solanaWorkflow.account.voteData.fetch(nextVoteData);
-        } catch (e) {
-          isExist = true;
-          remainingAccounts.push(nextVoteData);
-          coefs.push(coef);
+          const response = await axios.post(url, data, {
+            headers: {
+              'Content-Type': 'application/json',
+            },
+          });
+
+          if (!response.data.result.value) {
+            isExist = true;
+            remainingAccounts.push({
+              pubkey: nextVoteData,
+              isWritable: true,
+              isSigner: false,
+            });
+            coefs.push(coef);
+          }
+        } catch (error) {
+          console.error('Error fetching data:', error);
         }
 
         coef++;
@@ -240,7 +267,7 @@ describe('solana-workflow', () => {
     console.log(coefs, remainingAccounts);
 
     const vote: InputVote = {
-      option: 1,
+      option: 0,
     };
 
     const tx = await solanaWorkflow.methods
@@ -252,7 +279,11 @@ describe('solana-workflow', () => {
         workflowProgram: solanaWorkflow.programId,
       })
       .remainingAccounts(remainingAccounts)
-      .rpc({ skipPreflight: true });
+      .rpc({
+        skipPreflight: true,
+        maxRetries: 10,
+        preflightCommitment: 'confirmed',
+      });
 
     console.log('Create vote tx: ', tx);
   });
