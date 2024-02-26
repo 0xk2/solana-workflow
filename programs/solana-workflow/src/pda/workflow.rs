@@ -12,7 +12,8 @@ pub struct Workflow {
     pub workflow_id: u64,
     pub start: u16,
     #[max_len(50)]
-    pub title: String
+    pub title: String,
+    pub no_variable: u8,
 }
 
 impl Workflow {
@@ -78,15 +79,22 @@ impl CheckPoint {
         title: String,
         options: Option<Vec<VoteOption>>,
     ) -> Result<()> {
+
+        let binding = workflow.key();
+        let seeds: &[&[u8]] = &[&id.to_le_bytes(), b"checkpoint", binding.as_ref()];
+
+        let (_, bump) = Pubkey::find_program_address(seeds, &workflow_program.key());
+
         cpi::create_account(
             system_program,
             payer.to_account_info(),
             checkpoint.to_account_info(),
-            workflow.to_account_info(),
-            id,
+            &seeds,
+            bump,
             CheckPoint::SIZE,
             &workflow_program.key(),
         )?;
+
         // deserialize and modify checkpoint account
         let mut run = CheckPoint::from(&checkpoint);
         run.create(workflow_id, id, title, options)?;

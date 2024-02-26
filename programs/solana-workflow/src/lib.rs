@@ -47,4 +47,12 @@ pub mod solana_workflow {
             vote_data_id,
         )
     }
+
+    pub fn vote<'c: 'info, 'info>(
+        ctx: Context<'_, '_, 'c, 'info, Vote<'info>>,
+        vote: InputVote,
+        vec_coef: Vec<u8>,
+    ) -> Result<()> {
+        instructions::vote::vote(ctx, vote, vec_coef)
+    }
 }

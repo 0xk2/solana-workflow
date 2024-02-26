@@ -19,7 +19,7 @@ pub struct CreateMission<'info> {
         init_if_needed, 
         payer = user, 
         space=1000,
-        seeds=[b"vote_data", mission.key().as_ref(),&vote_data_id.to_le_bytes()], 
+        seeds=[b"vote_data", mission.key().as_ref(), &vote_data_id.to_le_bytes(), &[0]], 
         bump
     )]
     pub vote_data: Account<'info, VoteData>,
@@ -45,8 +45,6 @@ pub fn create_mission(
         content,
         current_vote_data,
     )?;
-    msg!("{:?}", mission.title);
-
     let vote_data = &mut ctx.accounts.vote_data;
     vote_data.checkpoint_id = checkpoint_id;
     vote_data.id = vote_data_id;
