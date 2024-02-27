@@ -4,7 +4,7 @@ use instructions::*;
 pub mod instructions;
 pub mod pda;
 
-declare_id!("YiQingywsU6FotchaG7HpB9oYGhUn26gufxB8xrwF1s");
+declare_id!("GfV9B4DHq93LCWjD3nSmFgStH7BxrDka8v7fgH7u1SCV");
 
 #[program]
 pub mod solana_workflow {

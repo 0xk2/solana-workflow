@@ -11,3 +11,22 @@ This is the test version of DASH. Functions:
 - vote: make a choice on a mission
   - create new new pda
   - change current checkpoint of misison_pda to the newly created one
+
+## TODO
+
+- [ ] Votemachine
+  - [ ] Solana Program: DocInput, SingleChoice, Squads, Realms
+  - [ ] Web2: Discourse
+  - [ ] Other chain: Snapshot, Tally
+- [ ] Variable
+- [ ] Trigger
+  - [ ] Web2: Twitter
+
+### Priority
+
+- [ ] DocInput
+- [ ] SingleChoice
+- [ ] Variable
+- [ ] Discourse
+- [ ] Squads
+- [ ] Twitter
