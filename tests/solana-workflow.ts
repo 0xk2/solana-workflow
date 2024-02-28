@@ -1,12 +1,14 @@
 import * as anchor from '@coral-xyz/anchor';
 import { Program } from '@coral-xyz/anchor';
 import { SolanaWorkflow } from '../target/types/solana_workflow';
+import { SingleChoice } from '../target/types/single_choice';
+
 import { PublicKey } from '@solana/web3.js';
 import * as borsh from 'borsh';
 import axios from 'axios';
 
 type InputCheckpoint = anchor.IdlTypes<SolanaWorkflow>['InputCheckPoint'];
-type InputVote = anchor.IdlTypes<SolanaWorkflow>['InputVote'];
+type InputVote = anchor.IdlTypes<SingleChoice>['InputVote'];
 
 type Workflow = {
   id: number;
@@ -25,6 +27,7 @@ const workflow: Workflow = {
     {
       id: 1,
       title: '1st check: Do you want to proceed?',
+      voteMachineAddress: new PublicKey(''),
       options: [
         {
           title: 'Cancel',
@@ -39,6 +42,7 @@ const workflow: Workflow = {
     {
       id: 2,
       title: '2nd check: Do you want to proceed?',
+      voteMachineAddress: new PublicKey(''),
       options: [
         {
           title: 'Cancel',
@@ -53,11 +57,13 @@ const workflow: Workflow = {
     {
       id: 3,
       title: 'You have cancelled the workflow.',
+      voteMachineAddress: new PublicKey(''),
       options: [],
     },
     {
       id: 4,
       title: 'Horray, success!',
+      voteMachineAddress: new PublicKey(''),
       options: [],
     },
   ],

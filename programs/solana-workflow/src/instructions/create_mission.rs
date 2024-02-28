@@ -22,7 +22,8 @@ pub struct CreateMission<'info> {
         seeds=[b"vote_data", mission.key().as_ref(), &vote_data_id.to_le_bytes(), &[0]], 
         bump
     )]
-    pub vote_data: Account<'info, VoteData>,
+    /// CHECK:
+    pub vote_data: AccountInfo<'info>,
     pub system_program: Program<'info, System>,
 }
 
@@ -45,8 +46,10 @@ pub fn create_mission(
         content,
         current_vote_data,
     )?;
-    let vote_data = &mut ctx.accounts.vote_data;
-    vote_data.checkpoint_id = checkpoint_id;
-    vote_data.id = vote_data_id;
+    
+    // let vote_data = &mut ctx.accounts.vote_data;
+    // cpi to vote_machine
+    // vote_data.checkpoint_id = checkpoint_id;
+    // vote_data.id = vote_data_id;
     Ok(())
 }
