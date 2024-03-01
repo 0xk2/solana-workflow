@@ -1,7 +1,5 @@
 use anchor_lang::prelude::*;
 
-use crate::{funcs, BpfWriter};
-
 #[account]
 pub struct Mission {
     pub workflow_id: u64,
@@ -35,9 +33,7 @@ impl Mission {
         Ok(())
     }
 }
-
-#[derive(InitSpace, AnchorSerialize, AnchorDeserialize, Clone)]
+#[account]
 pub struct Variable {
-    #[max_len(200)]
     pub value: Vec<u8>,
 }

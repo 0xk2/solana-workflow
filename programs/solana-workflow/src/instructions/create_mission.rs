@@ -23,7 +23,7 @@ pub struct CreateMission<'info> {
         bump
     )]
     /// CHECK:
-    pub vote_data: AccountInfo<'info>,
+    pub vote_data: Account<'info, VoteData>,
     pub system_program: Program<'info, System>,
 }
 
@@ -47,9 +47,11 @@ pub fn create_mission(
         current_vote_data,
     )?;
     
-    // let vote_data = &mut ctx.accounts.vote_data;
+    let vote_data = &mut ctx.accounts.vote_data;
     // cpi to vote_machine
-    // vote_data.checkpoint_id = checkpoint_id;
-    // vote_data.id = vote_data_id;
+    vote_data.checkpoint_id = checkpoint_id;
+    vote_data.id = vote_data_id;
+
+    // for to create variable
     Ok(())
 }

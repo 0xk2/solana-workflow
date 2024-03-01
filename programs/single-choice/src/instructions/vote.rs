@@ -1,8 +1,6 @@
 use anchor_lang::prelude::*;
 
-use solana_workflow::pda::{CheckPoint, Mission, Status};
-
-use crate::VoteData;
+use solana_workflow::pda::{CheckPoint, Mission, Status, VoteData};
 
 #[derive(Accounts)]
 pub struct Vote<'info> {
