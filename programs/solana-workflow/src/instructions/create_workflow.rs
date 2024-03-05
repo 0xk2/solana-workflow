@@ -28,6 +28,7 @@ pub struct InputCheckPoint {
     title: String,
     options: Option<Vec<VoteOption>>,
     vote_machine_address: Pubkey,
+    data: Option<Vec<u8>>
 }
 
 pub fn create_workflow<'c: 'info, 'info>(
@@ -57,6 +58,7 @@ pub fn create_workflow<'c: 'info, 'info>(
             input_checkpoint.id,
             input_checkpoint.title.clone(),
             input_checkpoint.options.clone(),
+            input_checkpoint.data.clone()
         )?;
     }
 

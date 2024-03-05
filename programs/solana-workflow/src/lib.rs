@@ -26,8 +26,8 @@ pub mod solana_workflow {
         )
     }
 
-    pub fn create_mission(
-        ctx: Context<CreateMission>,
+    pub fn create_mission<'c: 'info, 'info>(
+        ctx: Context<'_, '_, 'c, 'info, CreateMission<'info>>,
         workflow_id: u64,
         mission_id: u64,
         title: String,

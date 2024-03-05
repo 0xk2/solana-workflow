@@ -24,11 +24,14 @@ pub struct CreateMission<'info> {
     )]
     /// CHECK:
     pub vote_data: Account<'info, VoteData>,
+    #[account()]
+    /// CHECK:
+    pub workflow_program: AccountInfo<'info>,
     pub system_program: Program<'info, System>,
 }
 
-pub fn create_mission(
-    ctx: Context<CreateMission>,
+pub fn create_mission<'c: 'info, 'info>(
+    ctx: Context<'_, '_, 'c, 'info, CreateMission<'info>>,
     workflow_id: u64,
     mission_id: u64,
     title: String,
@@ -53,5 +56,18 @@ pub fn create_mission(
     vote_data.id = vote_data_id;
 
     // for to create variable
+    let remaining_accounts_iter = &mut ctx.remaining_accounts.iter();
+    let mut index = 0;
+    for variable in remaining_accounts_iter {
+        Variable::initialize(ctx.accounts.user.to_account_info(),
+        variable,
+        ctx.accounts.mission.to_account_info(),
+        ctx.accounts.workflow_program.to_account_info(),
+        ctx.accounts.system_program.to_account_info(),
+        vec![0],
+        index)?;
+
+        index +=1;
+    }
     Ok(())
 }

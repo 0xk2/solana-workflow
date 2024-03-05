@@ -1,3 +1,3 @@
-pub use vote_data::*;
+pub use tmp_vote_data::*;
 
-pub mod vote_data;
+pub mod tmp_vote_data;

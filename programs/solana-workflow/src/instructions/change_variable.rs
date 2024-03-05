@@ -11,14 +11,7 @@ pub struct CreateVariable<'info> {
     #[account(mut)]
     pub mission: Account<'info, Mission>,
 
-    #[account(
-        init_if_needed,        
-        payer = user, 
-        space=1000, 
-        seeds=[
-        b"variable", mission.key().as_ref(), &[_variable_id]], 
-        bump
-    )]
+    #[account(mut)]
     pub variable: Account<'info, Variable>,
 
     pub system_program: Program<'info, System>,

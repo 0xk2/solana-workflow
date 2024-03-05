@@ -38,6 +38,8 @@ pub struct CheckPoint {
     pub title: String,
     #[max_len(10)]
     pub options: Option<Vec<VoteOption>>,
+    #[max_len(200)]
+    pub data: Option<Vec<u8>>,
 }
 
 impl CheckPoint {
@@ -60,11 +62,13 @@ impl CheckPoint {
         id: u16,
         title: String,
         options: Option<Vec<VoteOption>>,
+        data: Option<Vec<u8>>,
     ) -> Result<()> {
         self.workflow_id = workflow_id;
         self.id = id;
         self.title = title;
         self.options = options;
+        self.data = data;
         Ok(())
     }
 
@@ -78,6 +82,7 @@ impl CheckPoint {
         id: u16,
         title: String,
         options: Option<Vec<VoteOption>>,
+        data: Option<Vec<u8>>
     ) -> Result<()> {
         let binding = workflow.key();
         let seeds: &[&[u8]] = &[&id.to_le_bytes(), b"checkpoint", binding.as_ref()];
@@ -96,7 +101,7 @@ impl CheckPoint {
 
         // deserialize and modify checkpoint account
         let mut run = CheckPoint::from(&checkpoint);
-        run.create(workflow_id, id, title, options)?;
+        run.create(workflow_id, id, title, options, data)?;
 
         // write
         run.serialize(checkpoint.to_account_info())?;
