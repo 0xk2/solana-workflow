@@ -1,5 +1,4 @@
 {
-    "rust-analyzer.linkedProjects": [
-        "./programs/doc-input/Cargo.toml"
-    ]
+  "rust-analyzer.linkedProjects": ["./programs/doc-input/Cargo.toml"],
+  "editor.indentSize": 4
 }

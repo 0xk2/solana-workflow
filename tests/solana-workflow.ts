@@ -78,27 +78,6 @@ const workflow: Workflow = {
   ],
 };
 
-// const dashSdk = {
-//   create_workflow: async function (data) {
-//     const workflow = {
-//       title: data.title,
-//       start: 1,
-//     };
-//     const checkpoints = data.checkpoints.map((checkpoint, index) => {
-//       return {
-//         id: checkpoint.id,
-//         title: checkpoint.title,
-//         options: checkpoint.options.map((option) => {
-//           return {
-//             title: option.title,
-//             nextId: option.nextId,
-//           };
-//         }),
-//       };
-//     });
-//   },
-// };
-
 describe('solana-workflow', () => {
   // Configure the client to use the local cluster.
   anchor.setProvider(anchor.AnchorProvider.env());
@@ -305,7 +284,7 @@ describe('solana-workflow', () => {
       isWritable: true,
       isSigner: false,
     });
-    
+
     console.log(coefs, remainingAccounts);
 
     const vote: InputVote = {
