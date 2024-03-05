@@ -27,6 +27,7 @@ pub struct InputCheckPoint {
     id: u16,
     title: String,
     options: Option<Vec<VoteOption>>,
+    vote_machine_address: Pubkey,
 }
 
 pub fn create_workflow<'c: 'info, 'info>(

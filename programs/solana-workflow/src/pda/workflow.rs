@@ -1,4 +1,4 @@
-use crate::{cpi, BpfWriter};
+use crate::{funcs, BpfWriter};
 use anchor_lang::prelude::*;
 
 /***
@@ -79,13 +79,12 @@ impl CheckPoint {
         title: String,
         options: Option<Vec<VoteOption>>,
     ) -> Result<()> {
-
         let binding = workflow.key();
         let seeds: &[&[u8]] = &[&id.to_le_bytes(), b"checkpoint", binding.as_ref()];
 
         let (_, bump) = Pubkey::find_program_address(seeds, &workflow_program.key());
 
-        cpi::create_account(
+        funcs::create_account(
             system_program,
             payer.to_account_info(),
             checkpoint.to_account_info(),

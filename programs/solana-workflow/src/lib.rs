@@ -48,11 +48,15 @@ pub mod solana_workflow {
         )
     }
 
-    pub fn vote<'c: 'info, 'info>(
-        ctx: Context<'_, '_, 'c, 'info, Vote<'info>>,
-        vote: InputVote,
-        vec_coef: Vec<u8>,
+    pub fn move_next_checkpoint(ctx: Context<MoveNextCheckpoint>, vote_data_id: u16) -> Result<()> {
+        instructions::move_next_checkpoint::move_next_checkpoint(ctx, vote_data_id)
+    }
+
+    pub fn change_variable(
+        ctx: Context<CreateVariable>,
+        value: Vec<u8>,
+        variable_id: u8,
     ) -> Result<()> {
-        instructions::vote::vote(ctx, vote, vec_coef)
+        instructions::change_variable::change_variable(ctx, value, variable_id)
     }
 }
