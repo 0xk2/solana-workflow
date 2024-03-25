@@ -5,6 +5,7 @@
     },
     "dependencies": {
         "@coral-xyz/anchor": "^0.29.0",
+        "@sqds/sdk": "^2.0.4",
         "axios": "^1.6.7",
         "borsh": "^2.0.0"
     },

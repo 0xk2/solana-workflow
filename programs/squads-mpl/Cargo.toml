@@ -1,0 +1,22 @@
+[package]
+name = "squads-mpl"
+version = "0.1.0"
+description = "Created with Anchor"
+edition = "2021"
+
+[lib]
+crate-type = ["cdylib", "lib"]
+name = "squads_spl"
+
+[features]
+no-entrypoint = []
+no-idl = []
+no-log-ix-name = []
+cpi = ["no-entrypoint"]
+default = []
+
+[dependencies]
+anchor-lang = "0.29.0"
+hex = "0.4.3"
+solana-security-txt = "1.1.1"
+default-env = "0.1.1"

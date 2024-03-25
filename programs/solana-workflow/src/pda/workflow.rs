@@ -95,7 +95,7 @@ impl CheckPoint {
             checkpoint.to_account_info(),
             &seeds,
             bump,
-            CheckPoint::SIZE,
+            CheckPoint::INIT_SPACE,
             &workflow_program.key(),
         )?;
 

@@ -11,3 +11,12 @@ This is the test version of DASH. Functions:
 - vote: make a choice on a mission
   - create new new pda
   - change current checkpoint of misison_pda to the newly created one
+
+### Squads
+
+![alt text](image.png)
+
+Action:
+- Create transaction: Off-chain
+- Vote: On-chain
+- Finalize/Execute: On-chain
